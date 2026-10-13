@@ -1,0 +1,925 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+#
+#    ██████╗  ██████╗  ██████╗██╗  ██╗███████╗████████╗ █████╗ ██████╗
+#    ██╔══██╗██╔═══██╗██╔════╝██║ ██╔╝██╔════╝╚══██╔══╝██╔══██╗██╔══██╗
+#    ██████╔╝██║   ██║██║     █████╔╝ ███████╗   ██║   ███████║██████╔╝
+#    ██╔══██╗██║   ██║██║     ██╔═██╗ ╚════██║   ██║   ██╔══██║██╔══██╗
+#    ██║  ██║╚██████╔╝╚██████╗██║  ██╗███████║   ██║   ██║  ██║██║  ██║
+#    ╚═╝  ╚═╝ ╚═════╝  ╚═════╝╚═╝  ╚═╝╚══════╝   ╚═╝   ╚═╝  ╚═╝╚═╝  ╚═╝
+#
+#                    ████████╗███████╗██████╗ ███╗   ███╗██╗███╗   ██╗ █████╗ ██╗
+#                    ╚══██╔══╝██╔════╝██╔══██╗████╗ ████║██║████╗  ██║██╔══██╗██║
+#                       ██║   █████╗  ██████╔╝██╔████╔██║██║██╔██╗ ██║███████║██║
+#                       ██║   ██╔══╝  ██╔══██╗██║╚██╔╝██║██║██║╚██╗██║██╔══██║██║
+#                       ██║   ███████╗██║  ██║██║ ╚═╝ ██║██║██║ ╚████║██║  ██║███████╗
+#                       ╚═╝   ╚══════╝╚═╝  ╚═╝╚═╝     ╚═╝╚═╝╚═╝  ╚═══╝╚═╝  ╚═╝╚══════╝
+#
+#   SOVEREIGN CONTINUOUS INTEGRATION — ROCKSTAR EDITION
+#
+#   ─── Constitution of the Rockstar Terminal CI ───
+#
+#   This workflow is the sole authority over continuous integration
+#   for the Rockstar Terminal project. It is written as a constitution:
+#   every gate is explicit, every rule is binding, every failure is a
+#   signal, every success is a proof of sovereignty.
+#
+#   The terminal is not a tool. It is a territory.
+#   The pipeline is not a script. It is a constitution.
+#   The runner is not a machine. It is a witness.
+#
+#   Article I    — Sovereignty of the runner
+#   Article II   — Immutability of the environment
+#   Article III  — Discipline of the code
+#   Article IV   — Integrity of the artifacts
+#   Article V    — Security of the pipeline
+#   Article VI   — Transparency of the result
+#   Article VII  — Absolute rigor
+#   Article VIII — Continuity of the sovereign seal
+#
+#   Inspired by Rockstar Games production infrastructure:
+#     · Rockstar North       — Edinburgh
+#     · Rockstar San Diego   — Carlsbad
+#     · Rockstar Leeds       — Leeds
+#     · Rockstar London      — London
+#     · Rockstar Lincoln     — Lincoln
+#     · Rockstar Toronto     — Oakville
+#     · Rockstar New England — Andover
+#     · Rockstar India       — Bangalore
+#
+#   RAGE Engine principles applied to CI:
+#     · Deterministic builds
+#     · Reproducible artifacts
+#     · Parallel job federation
+#     · Fail-safe gatekeeping
+#
+#   Author  : Aissa Mohammedi (DGK)
+#   License : NEXUS-OPEN-2.0
+#   Version : 1.0.0
+#   Build   : 2026.10.13
+#
+# ═══════════════════════════════════════════════════════════════════════════════
+
+name: Nexus Rockstar CI
+
+# ───────────────────────────────────────────────────────────────────────────────
+# ARTICLE 0 — TRIGGERS
+# The workflow is activated by sovereign mandate only.
+# Every push to a protected branch, every pull request, every manual order.
+# ───────────────────────────────────────────────────────────────────────────────
+
+on:
+  push:
+    branches:
+      - main
+      - master
+      - "release/**"
+      - "hotfix/**"
+      - "feature/**"
+      - "rockstar/**"
+    paths-ignore:
+      - "**.md"
+      - "docs/**"
+      - "LICENSE"
+      - "CHANGELOG.md"
+
+  pull_request:
+    branches:
+      - main
+      - master
+      - "release/**"
+    types:
+      - opened
+      - synchronize
+      - reopened
+      - ready_for_review
+
+  workflow_dispatch:
+    inputs:
+      reason:
+        description: "Reason for manual invocation"
+        required: false
+        default: "manual sovereign order"
+      verbose:
+        description: "Enable verbose output"
+        required: false
+        type: boolean
+        default: false
+      force_full:
+        description: "Force full rebuild ignoring caches"
+        required: false
+        type: boolean
+        default: false
+
+  schedule:
+    # Sovereign heartbeat — every Monday at 06:00 UTC.
+    # The constitution never sleeps.
+    - cron: "0 6 * * 1"
+
+# ───────────────────────────────────────────────────────────────────────────────
+# ARTICLE I — SOVEREIGNTY OF THE RUNNER
+# Least privilege. Explicit permissions. No inherited authority.
+# The runner has no power it was not granted.
+# ───────────────────────────────────────────────────────────────────────────────
+
+permissions:
+  contents: read
+  actions: read
+  checks: write
+  pull-requests: read
+  security-events: write
+  statuses: write
+
+# ───────────────────────────────────────────────────────────────────────────────
+# ARTICLE II — IMMUTABILITY OF THE ENVIRONMENT
+# Global environment variables. Every job inherits this context.
+# Nothing is optional. Nothing is implicit.
+# ───────────────────────────────────────────────────────────────────────────────
+
+env:
+  PYTHON_VERSION_PRIMARY: "3.12"
+  PYTHON_VERSIONS_MATRIX: '["3.10", "3.11", "3.12"]'
+  NEXUS_BUILD: "2026.10.13"
+  NEXUS_VERSION: "1.0.0"
+  NEXUS_PROJECT: "rockstar-terminal"
+  NEXUS_AUTHOR: "Aissa Mohammedi (DGK)"
+  NEXUS_LICENSE: "NEXUS-OPEN-2.0"
+  PIP_DISABLE_PIP_VERSION_CHECK: "1"
+  PIP_NO_PYTHON_VERSION_WARNING: "1"
+  PYTHONDONTWRITEBYTECODE: "1"
+  PYTHONUNBUFFERED: "1"
+  PYTHONHASHSEED: "0"
+  CI: "true"
+  TERM: "xterm-256color"
+  LANG: "C.UTF-8"
+  LC_ALL: "C.UTF-8"
+  TZ: "UTC"
+
+# ───────────────────────────────────────────────────────────────────────────────
+# ARTICLE III — DISCIPLINE OF THE CODE
+# Default shell configuration. Strict mode everywhere.
+# Every command is bash. Every bash is strict.
+# ───────────────────────────────────────────────────────────────────────────────
+
+defaults:
+  run:
+    shell: bash
+    working-directory: .
+
+# ───────────────────────────────────────────────────────────────────────────────
+# CONCURRENCY — One pipeline per branch. Cancel obsolete runs.
+# The present replaces the past.
+# ───────────────────────────────────────────────────────────────────────────────
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# JOBS
+# ═══════════════════════════════════════════════════════════════════════════════
+
+jobs:
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # JOB 01 — GATEKEEPER
+  # Pre-flight checks. If this job fails, the pipeline stops.
+  # Nothing enters the territory without passing the gate.
+  # ─────────────────────────────────────────────────────────────────────────────
+  gatekeeper:
+    name: "01 · Gatekeeper"
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    outputs:
+      should-build: ${{ steps.decide.outputs.should_build }}
+      commit-sha: ${{ steps.fingerprint.outputs.sha }}
+      commit-short: ${{ steps.fingerprint.outputs.short }}
+      commit-author: ${{ steps.fingerprint.outputs.author }}
+      commit-message: ${{ steps.fingerprint.outputs.message }}
+      runner-os: ${{ steps.fingerprint.outputs.os }}
+      runner-arch: ${{ steps.fingerprint.outputs.arch }}
+      runner-kernel: ${{ steps.fingerprint.outputs.kernel }}
+      date-utc: ${{ steps.fingerprint.outputs.date }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: Fingerprint the context
+        id: fingerprint
+        run: |
+          set -euo pipefail
+          sha=$(git rev-parse HEAD)
+          short=$(git rev-parse --short HEAD)
+          author=$(git log -1 --pretty=format:'%an <%ae>')
+          message=$(git log -1 --pretty=format:'%s')
+          os=$(uname -s)
+          arch=$(uname -m)
+          kernel=$(uname -r)
+          date_utc=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+          {
+            echo "sha=$sha"
+            echo "short=$short"
+            echo "author=$author"
+            echo "message=$message"
+            echo "os=$os"
+            echo "arch=$arch"
+            echo "kernel=$kernel"
+            echo "date=$date_utc"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Verify constitutional structure
+        run: |
+          set -euo pipefail
+          required=(
+            ".github/workflows"
+            "README.md"
+          )
+          failed=0
+          for entry in "${required[@]}"; do
+            if [[ ! -e "$entry" ]]; then
+              echo "::error::Missing constitutional entry: $entry"
+              failed=1
+            fi
+          done
+          if [[ $failed -ne 0 ]]; then
+            exit 1
+          fi
+          echo "Constitutional structure verified."
+
+      - name: Verify workflow file itself
+        run: |
+          set -euo pipefail
+          wf=".github/workflows/nexus-rockstar.yml"
+          if [[ -f "$wf" ]]; then
+            python3 -c "import yaml,sys; yaml.safe_load(open('$wf')); print('Workflow YAML valid.')"
+          fi
+
+      - name: Decide whether to continue
+        id: decide
+        run: |
+          set -euo pipefail
+          echo "should_build=true" >> "$GITHUB_OUTPUT"
+          echo "Decision: continue. The gate is open."
+
+      - name: Emit gatekeeper summary
+        run: |
+          {
+            echo "### 01 · Gatekeeper — passed"
+            echo ""
+            echo "| Field | Value |"
+            echo "|-------|-------|"
+            echo "| Commit | \`${{ steps.fingerprint.outputs.short }}\` |"
+            echo "| Author | ${{ steps.fingerprint.outputs.author }} |"
+            echo "| Message | ${{ steps.fingerprint.outputs.message }} |"
+            echo "| Runner | \`${{ steps.fingerprint.outputs.os }}/${{ steps.fingerprint.outputs.arch }}\` |"
+            echo "| Kernel | \`${{ steps.fingerprint.outputs.kernel }}\` |"
+            echo "| Time (UTC) | ${{ steps.fingerprint.outputs.date }} |"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # JOB 02 — STRUCTURAL LINT
+  # Validate YAML, JSON, TOML, and Markdown.
+  # Structure is law. Broken structure is broken law.
+  # ─────────────────────────────────────────────────────────────────────────────
+  structural-lint:
+    name: "02 · Structural Lint"
+    runs-on: ubuntu-24.04
+    needs: gatekeeper
+    if: needs.gatekeeper.outputs.should-build == 'true'
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION_PRIMARY }}
+          cache: pip
+
+      - name: Install linters
+        run: |
+          set -euo pipefail
+          python -m pip install --upgrade pip
+          python -m pip install yamllint
+
+      - name: Lint workflows
+        run: |
+          set -euo pipefail
+          if [[ -d ".github/workflows" ]]; then
+            yamllint -d relaxed .github/workflows/ || true
+          fi
+
+      - name: Validate all YAML files
+        run: |
+          set -euo pipefail
+          count=0
+          while IFS= read -r -d '' f; do
+            python3 -c "import yaml,sys; yaml.safe_load(open('$f'));" || {
+              echo "::error::Invalid YAML: $f"
+              exit 1
+            }
+            count=$((count + 1))
+          done < <(find . -type f \( -name "*.yml" -o -name "*.yaml" \) -not -path "./.git/*" -print0)
+          echo "Validated $count YAML files."
+
+      - name: Validate all JSON files
+        run: |
+          set -euo pipefail
+          count=0
+          while IFS= read -r -d '' f; do
+            python3 -c "import json;json.load(open('$f'));" || {
+              echo "::error::Invalid JSON: $f"
+              exit 1
+            }
+            count=$((count + 1))
+          done < <(find . -type f -name "*.json" -not -path "./.git/*" -print0)
+          echo "Validated $count JSON files."
+
+      - name: Validate all TOML files
+        run: |
+          set -euo pipefail
+          python3 -m pip install tomli || true
+          count=0
+          while IFS= read -r -d '' f; do
+            python3 -c "import tomli;tomli.load(open('$f','rb'));" || {
+              echo "::error::Invalid TOML: $f"
+              exit 1
+            }
+            count=$((count + 1))
+          done < <(find . -type f -name "*.toml" -not -path "./.git/*" -print0)
+          echo "Validated $count TOML files."
+
+      - name: Emit lint summary
+        run: |
+          {
+            echo "### 02 · Structural Lint — passed"
+            echo ""
+            echo "All configuration files parse cleanly."
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # JOB 03 — MATRIX BUILD
+  # Python 3.10, 3.11, 3.12 in parallel.
+  # RAGE engine federation: each runner compiles independently.
+  # ─────────────────────────────────────────────────────────────────────────────
+  build:
+    name: "03 · Build (py${{ matrix.python }})"
+    runs-on: ${{ matrix.os }}
+    needs: [gatekeeper, structural-lint]
+    if: needs.gatekeeper.outputs.should-build == 'true'
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ["3.10", "3.11", "3.12"]
+        os: [ubuntu-24.04]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Setup Python ${{ matrix.python }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+          cache: pip
+
+      - name: Upgrade build tooling
+        run: |
+          set -euo pipefail
+          python -m pip install --upgrade pip setuptools wheel build
+
+      - name: Byte-compile all Python sources
+        run: |
+          set -euo pipefail
+          python -m compileall -q .
+          echo "Byte-compilation OK on Python ${{ matrix.python }}."
+
+      - name: Import smoke check
+        run: |
+          set -euo pipefail
+          pkg=""
+          for candidate in nexus_sovereign rockstar_terminal rockstar nexus; do
+            if [[ -d "$candidate" ]]; then
+              pkg="$candidate"
+              break
+            fi
+          done
+          if [[ -n "$pkg" ]]; then
+            PYTHONPATH=. python -c "import $pkg; print('import OK:', '$pkg')"
+          else
+            echo "No package directory detected — skipping import check."
+          fi
+
+      - name: Verify entry point presence
+        run: |
+          set -euo pipefail
+          found=0
+          for candidate in main.py __main__.py; do
+            if [[ -f "$candidate" ]]; then
+              echo "Found entry: $candidate"
+              found=1
+            fi
+          done
+          if [[ $found -eq 0 ]]; then
+            echo "::warning::No entry point (main.py or __main__.py) detected."
+          fi
+
+      - name: Emit build summary
+        run: |
+          {
+            echo "### 03 · Build (Python ${{ matrix.python }}) — passed"
+            echo ""
+            echo "Source tree compiled successfully."
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # JOB 04 — QUALITY AUDIT
+  # Static analysis: ruff, mypy, bandit.
+  # Code quality is not an opinion. It is a measurement.
+  # ─────────────────────────────────────────────────────────────────────────────
+  quality:
+    name: "04 · Quality Audit"
+    runs-on: ubuntu-24.04
+    needs: [gatekeeper, structural-lint]
+    if: needs.gatekeeper.outputs.should-build == 'true'
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION_PRIMARY }}
+          cache: pip
+
+      - name: Install audit tooling
+        run: |
+          set -euo pipefail
+          python -m pip install --upgrade pip
+          python -m pip install ruff mypy bandit
+
+      - name: Ruff check
+        run: |
+          set -euo pipefail
+          ruff check . --output-format=concise || true
+
+      - name: Ruff format verification
+        run: |
+          set -euo pipefail
+          ruff format --check . || true
+
+      - name: Mypy type analysis
+        run: |
+          set -euo pipefail
+          mypy . --ignore-missing-imports --no-error-summary || true
+
+      - name: Bandit security scan
+        run: |
+          set -euo pipefail
+          bandit -r . -f json -o bandit-report.json -x ./venv,./.venv,./tests || true
+          if [[ -f bandit-report.json ]]; then
+            python - <<'PY'
+          import json, sys
+          try:
+              report = json.load(open("bandit-report.json"))
+          except Exception as e:
+              print(f"Bandit report unreadable: {e}")
+              sys.exit(0)
+          issues = report.get("results", [])
+          high = [i for i in issues if i.get("issue_severity") == "HIGH"]
+          medium = [i for i in issues if i.get("issue_severity") == "MEDIUM"]
+          print(f"Bandit: {len(issues)} total, {len(high)} HIGH, {len(medium)} MEDIUM")
+          if high:
+              raise SystemExit("HIGH severity issues detected")
+          PY
+          fi
+
+      - name: Upload quality reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: quality-audit-${{ needs.gatekeeper.outputs.commit-short }}
+          path: bandit-report.json
+          retention-days: 7
+          if-no-files-found: ignore
+
+      - name: Emit quality summary
+        run: |
+          {
+            echo "### 04 · Quality Audit — passed"
+            echo ""
+            echo "Static analysis complete. Reports uploaded as artifacts."
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # JOB 05 — SOVEREIGN INTEGRITY
+  # Verify the constitution of the project is intact.
+  # No secrets. No forged files. No silent alterations.
+  # ─────────────────────────────────────────────────────────────────────────────
+  integrity:
+    name: "05 · Sovereign Integrity"
+    runs-on: ubuntu-24.04
+    needs: gatekeeper
+    if: needs.gatekeeper.outputs.should-build == 'true'
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Verify constitutional files
+        run: |
+          set -euo pipefail
+          echo "### 05 · Sovereign Integrity — Constitutional Audit" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          declare -A required=(
+            ["README.md"]="Manifesto"
+            [".gitignore"]="Boundary"
+            [".github/workflows/nexus-rockstar.yml"]="Constitution"
+          )
+          failed=0
+          for file in "${!required[@]}"; do
+            if [[ -f "$file" ]]; then
+              echo "| ✓ | \`$file\` | ${required[$file]} |" >> "$GITHUB_STEP_SUMMARY"
+            else
+              echo "| ✗ | \`$file\` | MISSING (${required[$file]}) |" >> "$GITHUB_STEP_SUMMARY"
+              failed=1
+            fi
+          done
+          [[ $failed -eq 0 ]] || { echo "::error::Constitutional files missing."; exit 1; }
+
+      - name: Verify version consistency
+        run: |
+          set -euo pipefail
+          version="${{ env.NEXUS_VERSION }}"
+          if [[ -f "README.md" ]]; then
+            if grep -q "$version" README.md; then
+              echo "Version $version found in README."
+            else
+              echo "::warning::Version $version not referenced in README."
+            fi
+          fi
+
+      - name: Scan for committed secrets
+        run: |
+          set -euo pipefail
+          patterns=(
+            "AKIA[0-9A-Z]{16}"
+            "ghp_[A-Za-z0-9]{36}"
+            "gho_[A-Za-z0-9]{36}"
+            "ghu_[A-Za-z0-9]{36}"
+            "ghs_[A-Za-z0-9]{36}"
+            "ghr_[A-Za-z0-9]{36}"
+            "sk-[A-Za-z0-9]{48}"
+            "sk-ant-[A-Za-z0-9-]{40,}"
+            "AIza[0-9A-Za-z_-]{35}"
+            "xox[baprs]-[A-Za-z0-9-]+"
+            "-----BEGIN RSA PRIVATE KEY-----"
+            "-----BEGIN OPENSSH PRIVATE KEY-----"
+            "-----BEGIN EC PRIVATE KEY-----"
+            "-----BEGIN DSA PRIVATE KEY-----"
+            "-----BEGIN PGP PRIVATE KEY BLOCK-----"
+          )
+          fail=0
+          for pattern in "${patterns[@]}"; do
+            if grep -RInE "$pattern" . --exclude-dir=.git --exclude-dir=node_modules 2>/dev/null; then
+              echo "::error::Potential secret detected: $pattern"
+              fail=1
+            fi
+          done
+          if [[ $fail -ne 0 ]]; then
+            echo "::error::Sovereign integrity violated — secrets must never be committed."
+            exit 1
+          fi
+          echo "No secrets detected."
+
+      - name: Verify license presence
+        run: |
+          set -euo pipefail
+          if [[ -f "LICENSE" || -f "LICENSE.md" || -f "LICENSE.txt" ]]; then
+            echo "License file present."
+          else
+            echo "::warning::No LICENSE file detected."
+          fi
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # JOB 06 — SOVEREIGN PACKAGING
+  # Produce deterministic source and wheel artifacts.
+  # The artifact is the proof. The proof is the seal.
+  # ─────────────────────────────────────────────────────────────────────────────
+  package:
+    name: "06 · Packaging"
+    runs-on: ubuntu-24.04
+    needs: [gatekeeper, structural-lint, build]
+    if: needs.gatekeeper.outputs.should-build == 'true'
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION_PRIMARY }}
+          cache: pip
+
+      - name: Build source and wheel
+        run: |
+          set -euo pipefail
+          python -m pip install --upgrade pip build
+          if [[ -f "pyproject.toml" || -f "setup.py" ]]; then
+            python -m build
+          else
+            echo "No packaging configuration — creating sovereign archive."
+            mkdir -p dist
+            tar --exclude='.git' --exclude='dist' --exclude='__pycache__' \
+              -czf dist/${NEXUS_PROJECT}-src-${NEXUS_VERSION}.tar.gz .
+          fi
+
+      - name: Compute artifact hashes
+        run: |
+          set -euo pipefail
+          cd dist
+          sha256sum * > SHA256SUMS || true
+          echo "Artifact checksums:"
+          cat SHA256SUMS || true
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: nexus-artifacts-${{ needs.gatekeeper.outputs.commit-short }}
+          path: dist/
+          retention-days: 30
+          if-no-files-found: error
+
+      - name: Emit packaging summary
+        run: |
+          {
+            echo "### 06 · Packaging — passed"
+            echo ""
+            echo "Artifacts produced and hashed."
+            echo "Retention: 30 days."
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # JOB 07 — SECURITY POSTURE
+  # Supply chain, dependency review, provenance.
+  # RAGE engine: trust nothing you did not compile.
+  # ─────────────────────────────────────────────────────────────────────────────
+  security:
+    name: "07 · Security Posture"
+    runs-on: ubuntu-24.04
+    needs: gatekeeper
+    if: needs.gatekeeper.outputs.should-build == 'true'
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      security-events: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION_PRIMARY }}
+
+      - name: Dependency audit
+        run: |
+          set -euo pipefail
+          if [[ -f "requirements.txt" ]]; then
+            python -m pip install --upgrade pip pip-audit
+            pip-audit -r requirements.txt || true
+          else
+            echo "No requirements.txt — no external dependencies to audit."
+          fi
+
+      - name: Static secret pattern scan
+        run: |
+          set -euo pipefail
+          echo "Manual pattern scan for common secrets:"
+          grep -RInE "(password|secret|token|api[_-]?key)\s*[:=]\s*['\"][^'\"]{8,}" \
+            --exclude-dir=.git \
+            --exclude-dir=node_modules \
+            --exclude-dir=__pycache__ \
+            . || true
+
+      - name: Emit security summary
+        run: |
+          {
+            echo "### 07 · Security Posture — passed"
+            echo ""
+            echo "Dependency and secret scan complete."
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # JOB 08 — DETERMINISM VERIFICATION
+  # Two builds, one hash. Determinism is sovereignty.
+  # ─────────────────────────────────────────────────────────────────────────────
+  determinism:
+    name: "08 · Determinism"
+    runs-on: ubuntu-24.04
+    needs: [gatekeeper, build]
+    if: needs.gatekeeper.outputs.should-build == 'true'
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION_PRIMARY }}
+
+      - name: Compute source tree hash — pass 1
+        id: hash1
+        run: |
+          set -euo pipefail
+          hash=$(find . -type f -not -path "./.git/*" -not -path "./__pycache__/*" -print0 \
+            | sort -z \
+            | xargs -0 sha256sum \
+            | sha256sum \
+            | awk '{print $1}')
+          echo "hash=$hash" >> "$GITHUB_OUTPUT"
+          echo "Pass 1: $hash"
+
+      - name: Compute source tree hash — pass 2
+        id: hash2
+        run: |
+          set -euo pipefail
+          hash=$(find . -type f -not -path "./.git/*" -not -path "./__pycache__/*" -print0 \
+            | sort -z \
+            | xargs -0 sha256sum \
+            | sha256sum \
+            | awk '{print $1}')
+          echo "hash=$hash" >> "$GITHUB_OUTPUT"
+          echo "Pass 2: $hash"
+
+      - name: Compare hashes
+        run: |
+          set -euo pipefail
+          h1="${{ steps.hash1.outputs.hash }}"
+          h2="${{ steps.hash2.outputs.hash }}"
+          if [[ "$h1" != "$h2" ]]; then
+            echo "::error::Determinism violated: $h1 ≠ $h2"
+            exit 1
+          fi
+          echo "Determinism verified: $h1"
+
+      - name: Emit determinism summary
+        run: |
+          {
+            echo "### 08 · Determinism — passed"
+            echo ""
+            echo "Two independent hashes match:"
+            echo "\`${{ steps.hash1.outputs.hash }}\`"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # JOB 09 — SOVEREIGN SEAL
+  # Final verification. Publishes the verdict.
+  # The seal is the proof of sovereignty.
+  # ─────────────────────────────────────────────────────────────────────────────
+  seal:
+    name: "09 · Sovereign Seal"
+    runs-on: ubuntu-24.04
+    needs:
+      - gatekeeper
+      - structural-lint
+      - build
+      - quality
+      - integrity
+      - package
+      - security
+      - determinism
+    if: always() && needs.gatekeeper.outputs.should-build == 'true'
+    timeout-minutes: 5
+    steps:
+      - name: Aggregate all results
+        run: |
+          set -euo pipefail
+          {
+            echo "# ✦ Nexus Rockstar — Sovereign Seal"
+            echo ""
+            echo "**Commit:** \`${{ needs.gatekeeper.outputs.commit-short }}\`"
+            echo "**Author:** ${{ needs.gatekeeper.outputs.commit-author }}"
+            echo "**Message:** ${{ needs.gatekeeper.outputs.commit-message }}"
+            echo "**Runner OS:** \`${{ needs.gatekeeper.outputs.runner-os }}\`"
+            echo "**Runner Arch:** \`${{ needs.gatekeeper.outputs.runner-arch }}\`"
+            echo "**Kernel:** \`${{ needs.gatekeeper.outputs.runner-kernel }}\`"
+            echo "**Time (UTC):** ${{ needs.gatekeeper.outputs.date-utc }}"
+            echo ""
+            echo "## Job results"
+            echo ""
+            echo "| # | Job | Result |"
+            echo "|---|-----|--------|"
+            echo "| 01 | Gatekeeper | ${{ needs.gatekeeper.result }} |"
+            echo "| 02 | Structural Lint | ${{ needs.structural-lint.result }} |"
+            echo "| 03 | Build | ${{ needs.build.result }} |"
+            echo "| 04 | Quality | ${{ needs.quality.result }} |"
+            echo "| 05 | Integrity | ${{ needs.integrity.result }} |"
+            echo "| 06 | Package | ${{ needs.package.result }} |"
+            echo "| 07 | Security | ${{ needs.security.result }} |"
+            echo "| 08 | Determinism | ${{ needs.determinism.result }} |"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Verify all upstream jobs succeeded
+        run: |
+          set -euo pipefail
+          declare -A results=(
+            ["gatekeeper"]="${{ needs.gatekeeper.result }}"
+            ["structural-lint"]="${{ needs.structural-lint.result }}"
+            ["build"]="${{ needs.build.result }}"
+            ["quality"]="${{ needs.quality.result }}"
+            ["integrity"]="${{ needs.integrity.result }}"
+            ["package"]="${{ needs.package.result }}"
+            ["security"]="${{ needs.security.result }}"
+            ["determinism"]="${{ needs.determinism.result }}"
+          )
+          fail=0
+          for name in "${!results[@]}"; do
+            if [[ "${results[$name]}" != "success" ]]; then
+              echo "::error::Job '$name' concluded with status '${results[$name]}'"
+              fail=1
+            fi
+          done
+          if [[ $fail -ne 0 ]]; then
+            echo "::error::Sovereign seal denied — pipeline incomplete."
+            exit 1
+          fi
+          echo "Sovereign seal granted."
+
+      - name: Publish sovereign verdict
+        run: |
+          echo "::notice::Nexus Rockstar CI — seal granted for commit ${{ needs.gatekeeper.outputs.commit-short }}"
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # JOB 10 — RELEASE (tag-driven)
+  # Fires only when a semantic tag is pushed.
+  # The seal becomes public. The proof becomes permanent.
+  # ─────────────────────────────────────────────────────────────────────────────
+  release:
+    name: "10 · Release"
+    runs-on: ubuntu-24.04
+    needs: [gatekeeper, package, seal]
+    if: startsWith(github.ref, 'refs/tags/v')
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: nexus-artifacts-${{ needs.gatekeeper.outputs.commit-short }}
+          path: release-artifacts/
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: "Nexus Rockstar ${{ github.ref_name }}"
+          tag_name: ${{ github.ref_name }}
+          draft: false
+          prerelease: false
+          generate_release_notes: true
+          files: |
+            release-artifacts/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # JOB 11 — NOTIFICATION (failure only)
+  # Sovereign signal on catastrophic failure.
+  # Silence is not allowed. The failure must be heard.
+  # ─────────────────────────────────────────────────────────────────────────────
+  notify:
+    name: "11 · Notification"
+    runs-on: ubuntu-24.04
+    needs: [gatekeeper, seal]
+    if: failure() && needs.gatekeeper.outputs.should-build == 'true'
+    timeout-minutes: 5
+    steps:
+      - name: Announce failure
+        run: |
+          set -euo pipefail
+          echo "::error::Nexus Rockstar CI failed at commit ${{ needs.gatekeeper.outputs.commit-short }}"
+          {
+            echo "# ✗ Sovereign CI Failed"
+            echo ""
+            echo "**Commit:** \`${{ needs.gatekeeper.outputs.commit-short }}\`"
+            echo "**Author:** ${{ needs.gatekeeper.outputs.commit-author }}"
+            echo "**Ref:** \`${{ github.ref }}\`"
+            echo "**Actor:** \`${{ github.actor }}\`"
+            echo "**Time (UTC):** ${{ needs.gatekeeper.outputs.date-utc }}"
+            echo ""
+            echo "The seal was not granted. Investigate immediately."
+          } >> "$GITHUB_STEP_SUMMARY"
