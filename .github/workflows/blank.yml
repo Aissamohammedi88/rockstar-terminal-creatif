@@ -1,936 +1,200 @@
 # ═══════════════════════════════════════════════════════════════════════════════
 #
-#   ██████╗  ██████╗  ██████╗██╗  ██╗███████╗████████╗ █████╗ ██████╗
-#   ██╔══██╗██╔═══██╗██╔════╝██║ ██╔╝██╔════╝╚══██╔══╝██╔══██╗██╔══██╗
-#   ██████╔╝██║   ██║██║     █████╔╝ ███████╗   ██║   ███████║██████╔╝
-#   ██╔══██╗██║   ██║██║     ██╔═██╗ ╚════██║   ██║   ██╔══██║██╔══██╗
-#   ██║  ██║╚██████╔╝╚██████╗██║  ██╗███████║   ██║   ██║  ██║██║  ██║
-#   ╚═╝  ╚═╝ ╚═════╝  ╚═════╝╚═╝  ╚═╝╚══════╝   ╚═╝   ╚═╝  ╚═╝╚═╝  ╚═╝
+#   ROCKSTAR TERMINAL — SOVEREIGN ORCHESTRATION
 #
-#              TERMINAL — PRODUCTION PIPELINE
-#
-#   ─── SOVEREIGN CONTINUOUS INTEGRATION ───
-#
-#   This pipeline is modeled on the AAA production workflow of
-#   Rockstar Games. Every job mirrors a studio discipline. Every
-#   gate mirrors a production review. Every artifact mirrors a
-#   shipped build.
-#
-#   Pipeline stages (mirroring a Rockstar production cycle):
-#
-#     Stage 01 · ROCKSTAR NORTH      — Creative direction & gatekeeping
-#     Stage 02 · SCRIPT & DESIGN     — Structural validation
-#     Stage 03 · RAGE ENGINE         — Core compilation matrix
-#     Stage 04 · MOTION CAPTURE      — Behavioral simulation audit
-#     Stage 05 · AUDIO PRODUCTION    — Quality & signal analysis
-#     Stage 06 · LEVEL DESIGN        — Constitution integrity
-#     Stage 07 · RENDER FARM         — Deterministic packaging
-#     Stage 08 · SECURITY DIVISION   — Supply chain posture
-#     Stage 09 · QA DEPARTMENT       — Terminal behavior verification
-#     Stage 10 · ROCKSTAR SEAL       — Final production verdict
-#     Stage 11 · LAUNCH DAY          — Tagged release to the world
-#     Stage 12 · CRISIS ROOM         — Failure response protocol
+#   Compose file for local development and production-like testing.
+#   Every service is a stage in the terminal's lifecycle.
 #
 #   Author  : Aissa Mohammedi (DGK)
 #   License : NEXUS-OPEN-2.0
-#   Version : 1.0.0
 #   Build   : 2026.10.13
 #
 # ═══════════════════════════════════════════════════════════════════════════════
 
-name: Rockstar Terminal — Production Pipeline
+name: rockstar-terminal
 
 # ───────────────────────────────────────────────────────────────────────────────
-# STAGE 00 — MISSION TRIGGERS
-# The pipeline reacts to sovereign mandates.
+# NETWORKS — isolated sovereign fabric
 # ───────────────────────────────────────────────────────────────────────────────
-
-on:
-  push:
-    branches:
-      - main
-      - master
-      - "release/**"
-      - "hotfix/**"
-      - "feature/**"
-      - "gina/**"
-      - "listener/**"
-    paths-ignore:
-      - "**.md"
-      - "docs/**"
-      - ".gitignore"
-      - "LICENSE"
-      - "assets/**"
-
-  pull_request:
-    branches:
-      - main
-      - master
-      - "release/**"
-    types:
-      - opened
-      - synchronize
-      - reopened
-      - ready_for_review
-
-  workflow_dispatch:
-    inputs:
-      mission:
-        description: "Mission codename"
-        required: false
-        default: "sovereign-run"
-      verbose:
-        description: "Enable verbose telemetry"
-        required: false
-        type: boolean
-        default: false
-      skip-audio:
-        description: "Skip audio production stage"
-        required: false
-        type: boolean
-        default: false
-
-  schedule:
-    # Weekly sovereign heartbeat — Monday 06:00 UTC
-    - cron: "0 6 * * 1"
+networks:
+  sovereign:
+    name: rockstar-sovereign
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.28.0.0/24
 
 # ───────────────────────────────────────────────────────────────────────────────
-# STAGE 00.1 — SOVEREIGN AUTHORITY
-# Least privilege. Explicit permissions. No inherited power.
+# VOLUMES — persistent state outside the container
 # ───────────────────────────────────────────────────────────────────────────────
-
-permissions:
-  contents: read
-  actions: read
-  checks: write
-  pull-requests: read
-  security-events: write
-  statuses: write
-
-# ───────────────────────────────────────────────────────────────────────────────
-# STAGE 00.2 — IMMUTABLE ENVIRONMENT
-# Every job inherits this context. Nothing changes mid-production.
-# ───────────────────────────────────────────────────────────────────────────────
-
-env:
-  ROCKSTAR_TERMINAL_VERSION: "1.0.0"
-  ROCKSTAR_TERMINAL_BUILD: "2026.10.13"
-  ROCKSTAR_CODENAME: "gina"
-  PYTHON_PRIMARY: "3.12"
-  PYTHON_SUPPORTED: "3.10,3.11,3.12"
-  PIP_DISABLE_PIP_VERSION_CHECK: "1"
-  PIP_NO_PYTHON_VERSION_WARNING: "1"
-  PYTHONDONTWRITEBYTECODE: "1"
-  PYTHONUNBUFFERED: "1"
-  PYTHONHASHSEED: "0"
-  CI: "true"
-  FORCE_COLOR: "1"
-  TERM: "xterm-256color"
+volumes:
+  rockstar-home:
+    name: rockstar-home
+  rockstar-memory:
+    name: rockstar-memory
+  rockstar-plugins:
+    name: rockstar-plugins
+  rockstar-workspace:
+    name: rockstar-workspace
+  rockstar-logs:
+    name: rockstar-logs
 
 # ───────────────────────────────────────────────────────────────────────────────
-# STAGE 00.3 — DISCIPLINE
-# Strict mode everywhere. No silent failures.
+# SERVICES
 # ───────────────────────────────────────────────────────────────────────────────
-
-defaults:
-  run:
-    shell: bash
-    working-directory: .
-
-# ───────────────────────────────────────────────────────────────────────────────
-# STAGE 00.4 — CONCURRENCY
-# One production per branch. Cancel obsolete cycles.
-# ───────────────────────────────────────────────────────────────────────────────
-
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
-
-# ═══════════════════════════════════════════════════════════════════════════════
-# PRODUCTION STAGES
-# ═══════════════════════════════════════════════════════════════════════════════
-
-jobs:
-
-  # ─────────────────────────────────────────────────────────────────────────────
-  # STAGE 01 — ROCKSTAR NORTH
-  # Creative direction & gatekeeping.
-  # ─────────────────────────────────────────────────────────────────────────────
-  rockstar-north:
-    name: "🎬 01 · Rockstar North"
-    runs-on: ubuntu-24.04
-    timeout-minutes: 5
-    outputs:
-      should-build: ${{ steps.decide.outputs.should_build }}
-      commit-sha: ${{ steps.fingerprint.outputs.sha }}
-      commit-short: ${{ steps.fingerprint.outputs.short }}
-      runner-os: ${{ steps.fingerprint.outputs.os }}
-      runner-arch: ${{ steps.fingerprint.outputs.arch }}
-      mission: ${{ steps.fingerprint.outputs.mission }}
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 1
-          persist-credentials: false
-
-      - name: Fingerprint the mission
-        id: fingerprint
-        run: |
-          set -euo pipefail
-          echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
-          echo "short=$(git rev-parse --short HEAD)" >> "$GITHUB_OUTPUT"
-          echo "os=$(uname -s)" >> "$GITHUB_OUTPUT"
-          echo "arch=$(uname -m)" >> "$GITHUB_OUTPUT"
-          echo "mission=${{ github.event.inputs.mission || 'auto' }}" >> "$GITHUB_OUTPUT"
-
-      - name: Verify production structure
-        run: |
-          set -euo pipefail
-          echo "▶ Verifying terminal production structure..."
-          required=(
-            ".github/workflows"
-            "README.md"
-          )
-          for entry in "${required[@]}"; do
-            if [[ ! -e "$entry" ]]; then
-              echo "::error::Missing required entry: $entry"
-              exit 1
-            fi
-            echo "  ✓ $entry"
-          done
-          echo "▶ Structure verified."
-
-      - name: Detect Rockstar Terminal components
-        run: |
-          set -euo pipefail
-          echo "▶ Detecting terminal components..."
-          for component in shell.py commands.py gina gina.py listen mic.py voice.py banner.py; do
-            found=$(find . -name "$component" -not -path "./.git/*" 2>/dev/null | head -n1)
-            if [[ -n "$found" ]]; then
-              echo "  ✓ $component — $found"
-            fi
-          done
-          echo "▶ Component detection complete."
-
-      - name: Decide whether to continue
-        id: decide
-        run: |
-          set -euo pipefail
-          echo "should_build=true" >> "$GITHUB_OUTPUT"
-          echo "▶ Decision: production continues."
-
-      - name: Emit mission summary
-        run: |
-          {
-            echo "### 🎬 Stage 01 — Rockstar North"
-            echo ""
-            echo "| Field | Value |"
-            echo "|-------|-------|"
-            echo "| Codename | \`${{ env.ROCKSTAR_CODENAME }}\` |"
-            echo "| Version | \`${{ env.ROCKSTAR_TERMINAL_VERSION }}\` |"
-            echo "| Build | \`${{ env.ROCKSTAR_TERMINAL_BUILD }}\` |"
-            echo "| Commit | \`${{ steps.fingerprint.outputs.short }}\` |"
-            echo "| Runner | \`${{ steps.fingerprint.outputs.os }}/${{ steps.fingerprint.outputs.arch }}\` |"
-            echo "| Mission | \`${{ steps.fingerprint.outputs.mission }}\` |"
-          } >> "$GITHUB_STEP_SUMMARY"
-
-  # ─────────────────────────────────────────────────────────────────────────────
-  # STAGE 02 — SCRIPT & DESIGN
-  # Structural validation of configuration files.
-  # ─────────────────────────────────────────────────────────────────────────────
-  script-and-design:
-    name: "📐 02 · Script & Design"
-    runs-on: ubuntu-24.04
-    needs: rockstar-north
-    if: needs.rockstar-north.outputs.should-build == 'true'
-    timeout-minutes: 10
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          persist-credentials: false
-
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ env.PYTHON_PRIMARY }}
-          cache: pip
-
-      - name: Install structural tools
-        run: |
-          set -euo pipefail
-          python -m pip install --upgrade pip
-          python -m pip install yamllint
-
-      - name: Lint workflows
-        run: |
-          set -euo pipefail
-          echo "▶ Linting GitHub workflows..."
-          yamllint -d relaxed .github/workflows/ || true
-
-      - name: Validate YAML syntax
-        run: |
-          set -euo pipefail
-          echo "▶ Validating YAML files..."
-          count=0
-          while IFS= read -r -d '' f; do
-            python -c "import yaml; yaml.safe_load(open('$f'))" || {
-              echo "::error::Invalid YAML: $f"
-              exit 1
-            }
-            count=$((count + 1))
-          done < <(find . \( -name "*.yml" -o -name "*.yaml" \) -not -path "./.git/*" -print0)
-          echo "  ✓ $count YAML files valid"
-
-      - name: Validate JSON syntax
-        run: |
-          set -euo pipefail
-          echo "▶ Validating JSON files..."
-          count=0
-          while IFS= read -r -d '' f; do
-            python -c "import json; json.load(open('$f'))" || {
-              echo "::error::Invalid JSON: $f"
-              exit 1
-            }
-            count=$((count + 1))
-          done < <(find . -name "*.json" -not -path "./.git/*" -print0)
-          echo "  ✓ $count JSON files valid"
-
-      - name: Emit summary
-        run: |
-          echo "### 📐 Stage 02 — Script & Design" >> "$GITHUB_STEP_SUMMARY"
-          echo "Configuration files validated." >> "$GITHUB_STEP_SUMMARY"
-
-  # ─────────────────────────────────────────────────────────────────────────────
-  # STAGE 03 — RAGE ENGINE
-  # Core compilation matrix. Python 3.10 / 3.11 / 3.12.
-  # ─────────────────────────────────────────────────────────────────────────────
-  rage-engine:
-    name: "⚙️ 03 · RAGE Engine (${{ matrix.python }})"
-    runs-on: ubuntu-24.04
-    needs: [rockstar-north, script-and-design]
-    if: needs.rockstar-north.outputs.should-build == 'true'
-    timeout-minutes: 20
-    strategy:
-      fail-fast: false
-      matrix:
-        python: ["3.10", "3.11", "3.12"]
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          persist-credentials: false
-
-      - name: Setup Python ${{ matrix.python }}
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ matrix.python }}
-          cache: pip
-
-      - name: Upgrade build tools
-        run: |
-          set -euo pipefail
-          python -m pip install --upgrade pip setuptools wheel
-
-      - name: Byte-compile terminal sources
-        run: |
-          set -euo pipefail
-          echo "▶ Compiling terminal sources on Python ${{ matrix.python }}..."
-          python -m compileall -q . 
-          echo "  ✓ Compilation OK"
-
-      - name: Import smoke check (terminal core)
-        run: |
-          set -euo pipefail
-          if [[ -d "nexus_sovereign" ]]; then
-            PYTHONPATH=. python -c "import nexus_sovereign; print('  ✓ nexus_sovereign imports cleanly')"
-          elif [[ -d "rockstar" ]]; then
-            PYTHONPATH=. python -c "import rockstar; print('  ✓ rockstar imports cleanly')"
-          else
-            echo "  · No package directory — skipping import check"
-          fi
-
-      - name: Verify stdin/stdout terminal behavior
-        run: |
-          set -euo pipefail
-          echo "▶ Verifying terminal I/O..."
-          if [[ -f "main.py" ]]; then
-            echo "exit" | timeout 10 python3 main.py >/dev/null 2>&1 || true
-            echo "  ✓ main.py did not crash"
-          fi
-
-      - name: Emit summary
-        run: |
-          {
-            echo "### ⚙️ Stage 03 — RAGE Engine"
-            echo "- Python \`${{ matrix.python }}\` — compilation successful"
-          } >> "$GITHUB_STEP_SUMMARY"
-
-  # ─────────────────────────────────────────────────────────────────────────────
-  # STAGE 04 — MOTION CAPTURE
-  # Behavioral simulation of the terminal — verify it moves, responds, listens.
-  # ─────────────────────────────────────────────────────────────────────────────
-  motion-capture:
-    name: "🎭 04 · Motion Capture"
-    runs-on: ubuntu-24.04
-    needs: [rockstar-north, script-and-design]
-    if: needs.rockstar-north.outputs.should-build == 'true'
-    timeout-minutes: 10
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          persist-credentials: false
-
-      - uses: actions/setup-python@v5
-        with:
-          python-version: ${{ env.PYTHON_PRIMARY }}
-
-      - name: Simulate terminal input sequence
-        run: |
-          set -euo pipefail
-          echo "▶ Simulating terminal input sequence..."
-
-          if [[ -f "main.py" ]]; then
-            cat > /tmp/terminal_input.txt <<'INPUT'
-help
-exit
-INPUT
-            timeout 15 python3 main.py < /tmp/terminal_input.txt > /tmp/terminal_out.txt 2>&1 || true
-            echo "  · Terminal ran, output:"
-            head -n 10 /tmp/terminal_out.txt | sed 's/^/    /'
-          else
-            echo "  · No main.py found — using module entrypoint"
-          fi
-
-      - name: Verify Gina presence (assistant core)
-        run: |
-          set -euo pipefail
-          echo "▶ Checking Gina assistant presence..."
-          found=$(find . -iname "*gina*" -not -path "./.git/*" 2>/dev/null | head -n5)
-          if [[ -n "$found" ]]; then
-            echo "$found" | sed 's/^/  ✓ /'
-          else
-            echo "  · Gina module not detected (optional)"
-          fi
-
-      - name: Verify listener presence (audio pipeline)
-        run: |
-          set -euo pipefail
-          echo "▶ Checking audio listener presence..."
-          found=$(find . \( -iname "*listen*" -o -iname "*mic*" -o -iname "*voice*" \) -not -path "./.git/*" 2>/dev/null | head -n5)
-          if [[ -n "$found" ]]; then
-            echo "$found" | sed 's/^/  ✓ /'
-          else
-            echo "  · Listener module not detected (optional)"
-          fi
-
-      - name: Emit summary
-        run: |
-          echo "### 🎭 Stage 04 — Motion Capture" >> "$GITHUB_STEP_SUMMARY"
-          echo "Behavioral simulation complete." >> "$GITHUB_STEP_SUMMARY"
-
-  # ─────────────────────────────────────────────────────────────────────────────
-  # STAGE 05 — AUDIO PRODUCTION
-  # Quality and signal analysis of the source code.
-  # ─────────────────────────────────────────────────────────────────────────────
-  audio-production:
-    name: "🎚️ 05 · Audio Production"
-    runs-on: ubuntu-24.04
-    needs: [rockstar-north, script-and-design]
-    if: |
-      needs.rockstar-north.outputs.should-build == 'true'
-      && github.event.inputs.skip-audio != 'true'
-    timeout-minutes: 20
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          persist-credentials: false
-
-      - uses: actions/setup-python@v5
-        with:
-          python-version: ${{ env.PYTHON_PRIMARY }}
-          cache: pip
-
-      - name: Install audio production tools
-        run: |
-          set -euo pipefail
-          python -m pip install --upgrade pip
-          python -m pip install ruff mypy bandit
-
-      - name: Ruff — signal clarity
-        run: |
-          set -euo pipefail
-          echo "▶ Ruff: analyzing signal clarity..."
-          ruff check . || true
-
-      - name: Ruff — format discipline
-        run: |
-          set -euo pipefail
-          echo "▶ Ruff: checking format discipline..."
-          ruff format --check . || true
-
-      - name: Mypy — waveform typing
-        run: |
-          set -euo pipefail
-          echo "▶ Mypy: checking type integrity..."
-          mypy . --ignore-missing-imports || true
-
-      - name: Bandit — security noise floor
-        run: |
-          set -euo pipefail
-          echo "▶ Bandit: scanning for security noise..."
-          bandit -r . -f json -o bandit-report.json || true
-          if [[ -f bandit-report.json ]]; then
-            python - <<'PY'
-          import json
-          report = json.load(open("bandit-report.json"))
-          issues = report.get("results", [])
-          high = [i for i in issues if i.get("issue_severity") == "HIGH"]
-          print(f"  · {len(issues)} total issues, {len(high)} HIGH severity")
-          if high:
-              raise SystemExit("HIGH severity issues found")
-          PY
-          fi
-
-      - name: Upload audio production report
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: audio-report-${{ needs.rockstar-north.outputs.commit-short }}
-          path: bandit-report.json
-          retention-days: 7
-          if-no-files-found: ignore
-
-      - name: Emit summary
-        run: |
-          echo "### 🎚️ Stage 05 — Audio Production" >> "$GITHUB_STEP_SUMMARY"
-          echo "Signal analysis complete." >> "$GITHUB_STEP_SUMMARY"
-
-  # ─────────────────────────────────────────────────────────────────────────────
-  # STAGE 06 — LEVEL DESIGN
-  # Constitution integrity + secret hygiene.
-  # ─────────────────────────────────────────────────────────────────────────────
-  level-design:
-    name: "🗺️ 06 · Level Design"
-    runs-on: ubuntu-24.04
-    needs: rockstar-north
-    if: needs.rockstar-north.outputs.should-build == 'true'
-    timeout-minutes: 10
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          persist-credentials: false
-
-      - name: Verify constitutional files
-        run: |
-          set -euo pipefail
-          echo "▶ Verifying constitutional files..."
-          declare -A required=(
-            ["README.md"]="Manifesto"
-            [".gitignore"]="Boundary"
-            [".github/workflows/rockstar-production.yml"]="Constitution"
-          )
-          failed=0
-          {
-            echo "### 🗺️ Stage 06 — Level Design"
-            echo ""
-            echo "| File | Role | Status |"
-            echo "|------|------|--------|"
-          } >> "$GITHUB_STEP_SUMMARY"
-
-          for file in "${!required[@]}"; do
-            if [[ -f "$file" ]]; then
-              echo "  ✓ $file (${required[$file]})"
-              echo "| \`$file\` | ${required[$file]} | ✓ |" >> "$GITHUB_STEP_SUMMARY"
-            else
-              echo "  ✗ MISSING: $file"
-              echo "| \`$file\` | ${required[$file]} | ✗ |" >> "$GITHUB_STEP_SUMMARY"
-              failed=1
-            fi
-          done
-          [[ $failed -eq 0 ]] || { echo "::error::Constitutional files missing"; exit 1; }
-
-      - name: Verify Rockstar Terminal manifest markers
-        run: |
-          set -euo pipefail
-          echo "▶ Verifying Rockstar Terminal identity markers..."
-          if [[ -f "README.md" ]]; then
-            grep -qi "rockstar\|sovereign\|terminal\|gina" README.md \
-              && echo "  ✓ Identity markers present" \
-              || echo "  · No identity markers found"
-          fi
-
-      - name: Scan for committed secrets
-        run: |
-          set -euo pipefail
-          echo "▶ Scanning for exposed secrets..."
-          patterns=(
-            "AKIA[0-9A-Z]{16}"
-            "ghp_[A-Za-z0-9]{36}"
-            "sk-[A-Za-z0-9]{48}"
-            "-----BEGIN RSA PRIVATE KEY-----"
-            "-----BEGIN OPENSSH PRIVATE KEY-----"
-            "-----BEGIN EC PRIVATE KEY-----"
-          )
-          fail=0
-          for pattern in "${patterns[@]}"; do
-            if grep -RInE "$pattern" . --exclude-dir=.git 2>/dev/null; then
-              echo "::error::Potential secret detected: $pattern"
-              fail=1
-            fi
-          done
-          [[ $fail -eq 0 ]] || exit 1
-          echo "  ✓ No secrets detected"
-
-  # ─────────────────────────────────────────────────────────────────────────────
-  # STAGE 07 — RENDER FARM
-  # Deterministic artifact production.
-  # ─────────────────────────────────────────────────────────────────────────────
-  render-farm:
-    name: "🏭 07 · Render Farm"
-    runs-on: ubuntu-24.04
-    needs: [rockstar-north, script-and-design, rage-engine]
-    if: needs.rockstar-north.outputs.should-build == 'true'
-    timeout-minutes: 15
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          persist-credentials: false
-
-      - uses: actions/setup-python@v5
-        with:
-          python-version: ${{ env.PYTHON_PRIMARY }}
-          cache: pip
-
-      - name: Build source and wheel
-        run: |
-          set -euo pipefail
-          echo "▶ Building distribution artifacts..."
-          python -m pip install --upgrade pip build
-          if [[ -f "pyproject.toml" || -f "setup.py" ]]; then
-            python -m build
-            echo "  ✓ Source and wheel built"
-          else
-            echo "  · No packaging config — creating source archive"
-            mkdir -p dist
-            tar --exclude='.git' --exclude='dist' -czf \
-              dist/rockstar-terminal-src.tar.gz .
-            echo "  ✓ Source archive created"
-          fi
-
-      - name: Hash artifacts
-        run: |
-          set -euo pipefail
-          cd dist
-          sha256sum * > SHA256SUMS || true
-          echo "▶ Artifact hashes:"
-          cat SHA256SUMS | sed 's/^/  /'
-
-      - name: Upload render artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: rockstar-artifacts-${{ needs.rockstar-north.outputs.commit-short }}
-          path: dist/
-          retention-days: 30
-          if-no-files-found: error
-
-      - name: Emit summary
-        run: |
-          echo "### 🏭 Stage 07 — Render Farm" >> "$GITHUB_STEP_SUMMARY"
-          echo "Artifacts packaged and hashed." >> "$GITHUB_STEP_SUMMARY"
-
-  # ─────────────────────────────────────────────────────────────────────────────
-  # STAGE 08 — SECURITY DIVISION
-  # Supply chain posture and dependency audit.
-  # ─────────────────────────────────────────────────────────────────────────────
-  security-division:
-    name: "🛡️ 08 · Security Division"
-    runs-on: ubuntu-24.04
-    needs: rockstar-north
-    if: needs.rockstar-north.outputs.should-build == 'true'
-    timeout-minutes: 15
-    permissions:
-      contents: read
-      security-events: write
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          persist-credentials: false
-
-      - uses: actions/setup-python@v5
-        with:
-          python-version: ${{ env.PYTHON_PRIMARY }}
-
-      - name: Dependency audit
-        run: |
-          set -euo pipefail
-          echo "▶ Auditing dependencies..."
-          if [[ -f "requirements.txt" ]]; then
-            python -m pip install --upgrade pip pip-audit
-            pip-audit -r requirements.txt || true
-          else
-            echo "  · No requirements.txt — skipping"
-          fi
-
-      - name: Static secret scan
-        run: |
-          set -euo pipefail
-          echo "▶ Scanning for credential patterns..."
-          grep -RInE "(password|secret|token|api[_-]?key)\s*[:=]\s*['\"][^'\"]{8,}" \
-            --exclude-dir=.git --exclude-dir=node_modules . || true
-          echo "  ✓ Scan complete"
-
-      - name: Verify no network calls in terminal core
-        run: |
-          set -euo pipefail
-          echo "▶ Verifying terminal sovereignty (no real network calls)..."
-          suspicious=$(grep -RInE "(socket\.|requests\.(get|post)|urllib\.request)" \
-            --include="*.py" --exclude-dir=.git . 2>/dev/null | head -n5 || true)
-          if [[ -n "$suspicious" ]]; then
-            echo "  · Suspicious network usage detected:"
-            echo "$suspicious" | sed 's/^/    /'
-          else
-            echo "  ✓ No real network calls in Python sources"
-          fi
-
-  # ─────────────────────────────────────────────────────────────────────────────
-  # STAGE 09 — QA DEPARTMENT
-  # Terminal behavior verification. No test framework. Direct verification.
-  # ─────────────────────────────────────────────────────────────────────────────
-  qa-department:
-    name: "🧪 09 · QA Department"
-    runs-on: ubuntu-24.04
-    needs: [rockstar-north, rage-engine]
-    if: needs.rockstar-north.outputs.should-build == 'true'
-    timeout-minutes: 15
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          persist-credentials: false
-
-      - uses: actions/setup-python@v5
-        with:
-          python-version: ${{ env.PYTHON_PRIMARY }}
-
-      - name: Verify terminal executable entrypoint
-        run: |
-          set -euo pipefail
-          echo "▶ Verifying terminal executable..."
-          candidates=("main.py" "run.py" "__main__.py")
-          found=""
-          for c in "${candidates[@]}"; do
-            if [[ -f "$c" ]]; then
-              found="$c"
-              break
-            fi
-          done
-          if [[ -n "$found" ]]; then
-            echo "  ✓ Found entrypoint: $found"
-            python3 -c "import ast; ast.parse(open('$found').read())" && echo "  ✓ Syntax valid"
-          else
-            echo "  · No standard entrypoint — scanning deeper"
-          fi
-
-      - name: Verify Python modules parse
-        run: |
-          set -euo pipefail
-          echo "▶ Parsing every Python module..."
-          count=0
-          errors=0
-          while IFS= read -r -d '' f; do
-            count=$((count + 1))
-            if ! python3 -c "import ast; ast.parse(open('$f').read())" 2>/dev/null; then
-              echo "  ✗ $f"
-              errors=$((errors + 1))
-            fi
-          done < <(find . -name "*.py" -not -path "./.git/*" -print0)
-          echo "  ✓ $count modules checked, $errors errors"
-          [[ $errors -eq 0 ]] || exit 1
-
-      - name: Verify shell pipeline mode
-        run: |
-          set -euo pipefail
-          echo "▶ Verifying pipeline mode is implemented..."
-          grep -RIl "pipeline\|redirect\|shlex" --include="*.py" . | head -n5 | sed 's/^/  ✓ /' || true
-
-      - name: Emit QA summary
-        run: |
-          echo "### 🧪 Stage 09 — QA Department" >> "$GITHUB_STEP_SUMMARY"
-          echo "Terminal behavior verified." >> "$GITHUB_STEP_SUMMARY"
-
-  # ─────────────────────────────────────────────────────────────────────────────
-  # STAGE 10 — ROCKSTAR SEAL
-  # Final production verdict. Aggregates every prior stage.
-  # ─────────────────────────────────────────────────────────────────────────────
-  rockstar-seal:
-    name: "🏆 10 · Rockstar Seal"
-    runs-on: ubuntu-24.04
-    needs:
-      - rockstar-north
-      - script-and-design
-      - rage-engine
-      - motion-capture
-      - audio-production
-      - level-design
-      - render-farm
-      - security-division
-      - qa-department
-    if: always() && needs.rockstar-north.outputs.should-build == 'true'
-    timeout-minutes: 5
-    steps:
-      - name: Aggregate production results
-        run: |
-          set -euo pipefail
-          {
-            echo "# 🏆 Rockstar Terminal — Production Seal"
-            echo ""
-            echo "**Codename:** \`${{ env.ROCKSTAR_CODENAME }}\`"
-            echo "**Version:** \`${{ env.ROCKSTAR_TERMINAL_VERSION }}\`"
-            echo "**Build:** \`${{ env.ROCKSTAR_TERMINAL_BUILD }}\`"
-            echo "**Commit:** \`${{ needs.rockstar-north.outputs.commit-short }}\`"
-            echo "**Runner:** \`${{ needs.rockstar-north.outputs.runner-os }}/${{ needs.rockstar-north.outputs.runner-arch }}\`"
-            echo ""
-            echo "| Stage | Result |"
-            echo "|-------|--------|"
-            echo "| 01 · Rockstar North | ${{ needs.rockstar-north.result }} |"
-            echo "| 02 · Script & Design | ${{ needs.script-and-design.result }} |"
-            echo "| 03 · RAGE Engine | ${{ needs.rage-engine.result }} |"
-            echo "| 04 · Motion Capture | ${{ needs.motion-capture.result }} |"
-            echo "| 05 · Audio Production | ${{ needs.audio-production.result }} |"
-            echo "| 06 · Level Design | ${{ needs.level-design.result }} |"
-            echo "| 07 · Render Farm | ${{ needs.render-farm.result }} |"
-            echo "| 08 · Security Division | ${{ needs.security-division.result }} |"
-            echo "| 09 · QA Department | ${{ needs.qa-department.result }} |"
-          } >> "$GITHUB_STEP_SUMMARY"
-
-      - name: Verify all production stages succeeded
-        run: |
-          set -euo pipefail
-          declare -A results=(
-            ["Rockstar North"]="${{ needs.rockstar-north.result }}"
-            ["Script & Design"]="${{ needs.script-and-design.result }}"
-            ["RAGE Engine"]="${{ needs.rage-engine.result }}"
-            ["Motion Capture"]="${{ needs.motion-capture.result }}"
-            ["Audio Production"]="${{ needs.audio-production.result }}"
-            ["Level Design"]="${{ needs.level-design.result }}"
-            ["Render Farm"]="${{ needs.render-farm.result }}"
-            ["Security Division"]="${{ needs.security-division.result }}"
-            ["QA Department"]="${{ needs.qa-department.result }}"
-          )
-          fail=0
-          for name in "${!results[@]}"; do
-            status="${results[$name]}"
-            if [[ "$status" != "success" && "$status" != "skipped" ]]; then
-              echo "::error::Stage '$name' concluded with status '$status'"
-              fail=1
-            fi
-          done
-          [[ $fail -eq 0 ]] || exit 1
-          echo "▶ Rockstar production seal granted."
-
-      - name: Publish verdict
-        run: |
-          echo "::notice::🏆 Rockstar Terminal — seal granted for commit ${{ needs.rockstar-north.outputs.commit-short }}"
-
-  # ─────────────────────────────────────────────────────────────────────────────
-  # STAGE 11 — LAUNCH DAY
-  # Tagged release. The terminal ships to the world.
-  # ─────────────────────────────────────────────────────────────────────────────
-  launch-day:
-    name: "🚀 11 · Launch Day"
-    runs-on: ubuntu-24.04
-    needs: [rockstar-north, render-farm, rockstar-seal]
-    if: startsWith(github.ref, 'refs/tags/v')
-    timeout-minutes: 10
-    permissions:
-      contents: write
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Download production artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: rockstar-artifacts-${{ needs.rockstar-north.outputs.commit-short }}
-          path: release-artifacts/
-
-      - name: Create GitHub Release
-        uses: softprops/action-gh-release@v2
-        with:
-          name: "Rockstar Terminal ${{ github.ref_name }}"
-          tag_name: ${{ github.ref_name }}
-          draft: false
-          prerelease: false
-          generate_release_notes: true
-          body: |
-            # 🎬 Rockstar Terminal ${{ github.ref_name }}
-
-            **Codename:** `gina`
-            **Build:** `2026.10.13`
-
-            ## Sovereign production release
-
-            This build passed every stage of the Rockstar production pipeline:
-
-            - ✓ Rockstar North — creative direction
-            - ✓ Script & Design — configuration
-            - ✓ RAGE Engine — compilation matrix
-            - ✓ Motion Capture — behavioral simulation
-            - ✓ Audio Production — quality signals
-            - ✓ Level Design — constitutional integrity
-            - ✓ Render Farm — deterministic artifacts
-            - ✓ Security Division — supply chain
-            - ✓ QA Department — terminal behavior
-
-            **Sealed and shipped.**
-
-            ---
-            *Code is the only sovereignty that cannot be delegated.*
-          files: |
-            release-artifacts/*
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Emit launch summary
-        run: |
-          echo "### 🚀 Stage 11 — Launch Day" >> "$GITHUB_STEP_SUMMARY"
-          echo "Release **${{ github.ref_name }}** shipped." >> "$GITHUB_STEP_SUMMARY"
-
-  # ─────────────────────────────────────────────────────────────────────────────
-  # STAGE 12 — CRISIS ROOM
-  # Failure response protocol. Publishes the alert.
-  # ─────────────────────────────────────────────────────────────────────────────
-  crisis-room:
-    name: "🚨 12 · Crisis Room"
-    runs-on: ubuntu-24.04
-    needs: [rockstar-north, rockstar-seal]
-    if: failure() && needs.rockstar-north.outputs.should-build == 'true'
-    timeout-minutes: 5
-    steps:
-      - name: Announce production failure
-        run: |
-          set -euo pipefail
-          echo "::error::Rockstar Terminal production failed at commit ${{ needs.rockstar-north.outputs.commit-short }}"
-          {
-            echo "# 🚨 Crisis Room — Production Failure"
-            echo ""
-            echo "| Field | Value |"
-            echo "|-------|-------|"
-            echo "| Commit | \`${{ needs.rockstar-north.outputs.commit-short }}\` |"
-            echo "| Ref | \`${{ github.ref }}\` |"
-            echo "| Actor | \`${{ github.actor }}\` |"
-            echo "| Trigger | \`${{ github.event_name }}\` |"
-            echo ""
-            echo "**The seal was not granted.**"
-            echo ""
-            echo "Investigate immediately. Production cannot ship in this state."
-          } >> "$GITHUB_STEP_SUMMARY"
-
-      - name: Log crisis metadata
-        run: |
-          set -euo pipefail
-          echo "Production failure logged:"
-          echo "  Commit:  ${{ needs.rockstar-north.outputs.commit-short }}"
-          echo "  Ref:     ${{ github.ref }}"
-          echo "  Actor:   ${{ github.actor }}"
-          echo "  Time:    $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+services:
+
+  # ───────────────────────────────────────────────────────────────────────────
+  # SERVICE 01 — ROCKSTAR TERMINAL (primary)
+  # The sovereign terminal itself.
+  # ───────────────────────────────────────────────────────────────────────────
+  terminal:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: production
+      args:
+        INSTALL_WHISPER: "0"
+    image: rockstar-terminal:1.0.0
+    container_name: rockstar-terminal
+    hostname: rockstar
+    restart: unless-stopped
+    networks:
+      - sovereign
+    environment:
+      TERM: xterm-256color
+      LANG: C.UTF-8
+      LC_ALL: C.UTF-8
+      ROCKSTAR_TERMINAL_VERSION: "1.0.0"
+      ROCKSTAR_TERMINAL_BUILD: "2026.10.13"
+      ROCKSTAR_CODENAME: gina
+      ROCKSTAR_VERBOSE: "0"
+    volumes:
+      - rockstar-home:/home/rockstar
+      - rockstar-memory:/home/rockstar/.rockstar/memory
+      - rockstar-plugins:/home/rockstar/.rockstar/plugins
+      - rockstar-workspace:/home/rockstar/workspace
+      - rockstar-logs:/home/rockstar/.rockstar/logs
+    stdin_open: true
+    tty: true
+    init: true
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+      - DAC_OVERRIDE
+      - FOWNER
+      - SETUID
+      - SETGID
+    read_only: false
+    tmpfs:
+      - /tmp:size=64M,mode=1777
+      - /run:size=16M,mode=755
+    healthcheck:
+      test: ["CMD", "python3", "-c", "import sys; sys.exit(0)"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # ───────────────────────────────────────────────────────────────────────────
+  # SERVICE 02 — GINA MEMORY SERVICE
+  # Persistent memory sidecar for the terminal's autonomous assistant.
+  # ───────────────────────────────────────────────────────────────────────────
+  gina-memory:
+    image: alpine:3.20
+    container_name: rockstar-gina-memory
+    hostname: gina-memory
+    restart: unless-stopped
+    networks:
+      - sovereign
+    command: >
+      sh -c "mkdir -p /memory &&
+             touch /memory/gina.db &&
+             echo 'Gina memory service ready' &&
+             tail -f /dev/null"
+    volumes:
+      - rockstar-memory:/memory
+    healthcheck:
+      test: ["CMD", "test", "-f", "/memory/gina.db"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    logging:
+      driver: json-file
+      options:
+        max-size: "5m"
+        max-file: "2"
+
+  # ───────────────────────────────────────────────────────────────────────────
+  # SERVICE 03 — VOICE BRIDGE (optional)
+  # Speech-to-text bridge. Disabled by default (profile: voice).
+  # ───────────────────────────────────────────────────────────────────────────
+  voice-bridge:
+    image: python:3.12-slim-bookworm
+    container_name: rockstar-voice-bridge
+    hostname: voice-bridge
+    restart: unless-stopped
+    networks:
+      - sovereign
+    profiles:
+      - voice
+    command: >
+      bash -c "pip install --no-cache-dir openai-whisper &&
+               python -c 'import whisper; print(\"Whisper ready\")' &&
+               tail -f /dev/null"
+    volumes:
+      - rockstar-memory:/memory
+    environment:
+      WHISPER_MODEL: base
+      WHISPER_LANGUAGE: fr
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    logging:
+      driver: json-file
+      options:
+        max-size: "5m"
+        max-file: "2"
+
+  # ───────────────────────────────────────────────────────────────────────────
+  # SERVICE 04 — TTS BRIDGE (optional)
+  # Text-to-speech bridge. Disabled by default (profile: voice).
+  # ───────────────────────────────────────────────────────────────────────────
+  tts-bridge:
+    image: debian:bookworm-slim
+    container_name: rockstar-tts-bridge
+    hostname: tts-bridge
+    restart: unless-stopped
+    networks:
+      - sovereign
+    profiles:
+      - voice
+    command: >
+      bash -c "apt-get update &&
+               apt-get install -y --no-install-recommends espeak-ng &&
+               rm -rf /var/lib/apt/lists/* &&
+               echo 'TTS bridge ready' &&
+               tail -f /dev/null"
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    logging:
+      driver: json-file
+      options:
+        max-size: "5m"
+        max-file: "2"
